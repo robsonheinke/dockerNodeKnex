@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: docker-node-pg-knex
+    # command: sh -c "npm run migrate && npm start"
+    # command: sh -c "npm start"
+    # command: npm start
+    command: sh -c "npm install && npm install -g knex && knex migrate:latest && npm start"
+    ports:
+      - 2311:2311
+    volumes:
+      - .:/usr/dockerNodePgKnex
+    links:
+      - db
+    depends_on:
+      - db
+    environment:
+      DB_HOST: host.docker.internal
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+  db:
+    image: postgres:alpine
+    container_name: docker-node-pg-knex-db
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_DB: ${DB_DATABASE}
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
